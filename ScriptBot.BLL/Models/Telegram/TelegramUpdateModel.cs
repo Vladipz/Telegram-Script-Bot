@@ -1,6 +1,6 @@
 namespace ScriptBot.BLL.Models.Telegram
 {
-    public class TelegramUpdate
+    public class TelegramUpdateModel
     {
         public long ChatId { get; set; }
 

@@ -1,3 +1,5 @@
+using ErrorOr;
+
 using ScriptBot.BLL.Models.Telegram;
 
 namespace ScriptBot.BLL.Commands
@@ -6,6 +8,6 @@ namespace ScriptBot.BLL.Commands
     {
         string Command { get; }
 
-        Task ExecuteAsync(TelegramUpdate telegramUpdate, string[] args);
+        Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args);
     }
 }

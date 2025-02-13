@@ -1,33 +1,38 @@
 using System.Text;
 
+using ErrorOr;
+
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
+using ScriptBot.DAL.Entities;
 
 namespace ScriptBot.BLL.Commands
 {
     public class ListUsersCommand : IBotCommand
     {
         private readonly IUserService _userService;
-        private readonly ITelegramService _telegramService;
 
-        public ListUsersCommand(IUserService userService, ITelegramService telegramService)
+        public ListUsersCommand(IUserService userService)
         {
             _userService = userService;
-            _telegramService = telegramService;
         }
 
         public string Command => "/users";
 
-        public async Task ExecuteAsync(TelegramUpdate update, string[] args)
+        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
         {
             var users = await _userService.GetUsersAsync();
 
             if (!users.Any())
             {
-                await _telegramService.SendMessageAsync(update.ChatId, "No users found.");
-                return;
+                return Error.NotFound("UsersNotFound", "No users found.");
             }
 
+            return GetSuccessMessages(telegramUpdate, users);
+        }
+
+        private static List<TargetMessageModel> GetSuccessMessages(TelegramUpdateModel telegramUpdate, IEnumerable<User> users)
+        {
             var messageBuilder = new StringBuilder("Users list:\n\n");
 
             var i = 1;
@@ -36,7 +41,11 @@ namespace ScriptBot.BLL.Commands
                 messageBuilder.AppendLine($"{i++}. @{user.Username} (ChatId: {user.ChatId}) - Role: {user.Role}");
             }
 
-            await _telegramService.SendMessageAsync(update.ChatId, messageBuilder.ToString());
+            // Повертаємо список із одного TargetMessageModel
+            return
+            [
+                new TargetMessageModel(telegramUpdate.ChatId, messageBuilder.ToString())
+            ];
         }
     }
 }

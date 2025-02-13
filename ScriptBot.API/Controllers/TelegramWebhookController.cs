@@ -12,10 +12,14 @@ namespace ScriptBot.API.Controllers
     public class TelegramWebhookController : ControllerBase
     {
         private readonly ICommandService _commandService;
+        private readonly ITelegramService _telegramService;
 
-        public TelegramWebhookController(ICommandService commandService)
+        public TelegramWebhookController(
+            ICommandService commandService,
+            ITelegramService telegramApiService)
         {
             _commandService = commandService;
+            _telegramService = telegramApiService;
         }
 
         [HttpPost]
@@ -26,7 +30,7 @@ namespace ScriptBot.API.Controllers
                 return Ok();
             }
 
-            var telegramUpdate = new TelegramUpdate
+            var telegramUpdate = new TelegramUpdateModel
             {
                 ChatId = update.Message.Chat.Id,
                 Username = update.Message.From?.Username,
@@ -35,7 +39,27 @@ namespace ScriptBot.API.Controllers
                 MessageText = update.Message.Text,
             };
 
-            await _commandService.HandleCommandAsync(telegramUpdate);
+            var result = await _commandService.HandleCommandAsync(telegramUpdate);
+
+            // Перевірка на помилки
+            if (result.IsError)
+            {
+                foreach (var error in result.Errors)
+                {
+                    await _telegramService.SendMessageAsync(telegramUpdate.ChatId, error.Description);
+                }
+
+                return Ok();
+            }
+
+            // Відправка всіх повідомлень отриманих від бізнес-логіки
+            if (result.Value is List<TargetMessageModel> messages)
+            {
+                foreach (var message in messages)
+                {
+                    await _telegramService.SendMessageAsync(message.ChatId, message.Text);
+                }
+            }
 
             return Ok();
         }

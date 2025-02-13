@@ -1,3 +1,5 @@
+using ErrorOr;
+
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
 using ScriptBot.DAL.Entities;
@@ -7,69 +9,66 @@ namespace ScriptBot.BLL.Commands
     public class AssignRoleCommand : IBotCommand
     {
         private readonly IRoleManagerService _roleManager;
-        private readonly ITelegramService _telegramService;
 
         public AssignRoleCommand(
-            IRoleManagerService roleManager,
-            ITelegramService telegramService)
+            IRoleManagerService roleManager)
         {
             _roleManager = roleManager;
-            _telegramService = telegramService;
         }
 
         public string Command => "/assignrole";
 
-        public async Task ExecuteAsync(TelegramUpdate telegramUpdate, string[] args)
+        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
         {
-            if (args.Length != 2)
+            var validationResult = ValidateArguments(args);
+            if (validationResult.IsError)
             {
-                await _telegramService.SendMessageAsync(
-                    telegramUpdate.ChatId,
-                    "Usage: /assignrole <chatId> <role>");
-                return;
+                return validationResult.Errors;
             }
 
-            if (!long.TryParse(args[0], out long targetChatId))
-            {
-                await _telegramService.SendMessageAsync(
-                    telegramUpdate.ChatId,
-                    "Invalid ChatId format");
-                return;
-            }
-
-            if (!Enum.TryParse(args[1], true, out UserRole newRole))
-            {
-                await _telegramService.SendMessageAsync(
-                    telegramUpdate.ChatId,
-                    "Invalid role. Available roles: admin, user");
-                return;
-            }
+            var (targetChatId, newRole) = validationResult.Value;
 
             var result = await _roleManager.UpdateUserRoleAsync(targetChatId, newRole);
 
-            if (result.IsError)
-            {
-                // TODO: There are two possible error cases here:
-                // FIX: Want top add ToRespose() method to the Result class
-                await _telegramService.SendMessageAsync(
-                    telegramUpdate.ChatId,
-                    $"Failed to assign role. User with ChatId: {targetChatId} not found");
-            }
-            else
-            {
-                await NotifyAboutRoleChange(telegramUpdate.ChatId, targetChatId, newRole);
-            }
+            return result.Match<ErrorOr<IEnumerable<TargetMessageModel>>>(
+                updated => GetSuccessMessages(telegramUpdate.ChatId, targetChatId, newRole),
+                errors => errors);
         }
 
-        private Task NotifyAboutRoleChange(long adminChatId, long targetChatId, UserRole newRole)
+        private static List<TargetMessageModel> GetSuccessMessages(long chatId, long targetChatId, UserRole newRole)
         {
-            return Task.WhenAll(
-                _telegramService.SendMessageAsync(
-                    adminChatId,
-                    $"Role {newRole} successfully assigned to user with ChatId: {targetChatId}"),
-                _telegramService.SendMessageAsync(
-                    targetChatId,
-                    $"Your role has been changed to {newRole}"));
+            return
+            [
+                new TargetMessageModel(chatId, $"Role {newRole} successfully assigned to user with ChatId: {targetChatId}"),
+                new TargetMessageModel(targetChatId, $"Your role has been changed to {newRole}"),
+            ];
+        }
+
+        private static ErrorOr<(long TargetChatId, UserRole NewRole)> ValidateArguments(string[] args)
+        {
+            var errors = new List<Error>(); // Список для накопичення помилок
+
+            if (args.Length != 2)
+            {
+                errors.Add(Error.Validation("InvalidArguments", "Usage: /assignrole <chatId> <role>"));
+            }
+
+            if (!long.TryParse(args.ElementAtOrDefault(0), out long targetChatId))
+            {
+                errors.Add(Error.Validation("InvalidChatId", "ChatId is invalid or missing."));
+            }
+
+            if (!Enum.TryParse(args.ElementAtOrDefault(1), true, out UserRole newRole))
+            {
+                errors.Add(Error.Validation("InvalidRole", "Role is invalid or missing."));
+            }
+
+            if (errors.Count != 0)
+            {
+                return errors; // Якщо є хоча б одна помилка, повертаємо сукупність помилок
+            }
+
+            return (targetChatId, newRole); // Успішний результат
         }
     }
 }

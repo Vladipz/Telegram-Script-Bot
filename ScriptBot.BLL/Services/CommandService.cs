@@ -1,3 +1,5 @@
+using ErrorOr;
+
 using ScriptBot.BLL.Commands;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
@@ -6,25 +8,27 @@ namespace ScriptBot.BLL.Services
 {
     public class CommandService : ICommandService
     {
-        private readonly Dictionary<string, IBotCommand> _commands;
+        private readonly IEnumerable<IBotCommand> _commands;
 
         public CommandService(IEnumerable<IBotCommand> commands)
         {
-            _commands = commands.ToDictionary(cmd => cmd.Command, cmd => cmd);
+            _commands = commands;
         }
 
-        public async Task HandleCommandAsync(TelegramUpdate telegramUpdate)
+        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate)
         {
-            var parts = telegramUpdate.MessageText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var commandText = telegramUpdate.MessageText.Split(' ')[0];
 
-            var command = parts[0];
+            var args = telegramUpdate.MessageText.Split(' ').Skip(1).ToArray();
 
-            var args = parts.Skip(1).ToArray();
+            var command = _commands.FirstOrDefault(c => c.Command == commandText);
 
-            if (_commands.TryGetValue(command, out var cmd))
+            if (command == null)
             {
-                await cmd.ExecuteAsync(telegramUpdate, args);
+                return Error.NotFound("CommandNotFound", "Unknown command.");
             }
+
+            return await command.ExecuteAsync(telegramUpdate, args);
         }
     }
 }
