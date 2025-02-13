@@ -1,6 +1,5 @@
 root = true
-[*.cs]
-dotnet_diagnostic.SA0001.severity = none
+
 # All files
 [*]
 indent_style = space
@@ -363,22 +362,13 @@ dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator = 
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
-# Disable SA1633: The file header is missing or not located at the top of the file.
 [*.cs]
-dotnet_diagnostic.SA1633.severity = none
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
 dotnet_diagnostic.SA1600.severity = none
-dotnet_diagnostic.SA1200.severity = none
-dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1633.severity = none
+
 dotnet_diagnostic.SA1101.severity = none
-dotnet_diagnostic.CA2007.severity = none
-dotnet_diagnostic.IDE0058.severity = none
-
-# disable rules for Migration files 
-[**/Migrations/*.cs]
-generated_code = true
-
-# S1135: Track uses of "TODO" tags
-dotnet.diagnostic.S1135.severity = warning
-
-#IDE0008 Use explicit type
-dotnet_diagnostic.IDE0008.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.S1135.severity = suggestion
