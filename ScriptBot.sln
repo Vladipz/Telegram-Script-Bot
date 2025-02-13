@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptBot.API", "ScriptBot.API\ScriptBot.API.csproj", "{D9BB5DF3-7635-4FA4-9C22-4D229C794CF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptBot.BLL", "ScriptBot.BLL\ScriptBot.BLL.csproj", "{5E345015-B822-4017-9D0E-24BA6D3E3E30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptBot.DAL", "ScriptBot.DAL\ScriptBot.DAL.csproj", "{2FD923D2-09A3-4EA0-BE0F-65044E0EC7E7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9BB5DF3-7635-4FA4-9C22-4D229C794CF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9BB5DF3-7635-4FA4-9C22-4D229C794CF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9BB5DF3-7635-4FA4-9C22-4D229C794CF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9BB5DF3-7635-4FA4-9C22-4D229C794CF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E345015-B822-4017-9D0E-24BA6D3E3E30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E345015-B822-4017-9D0E-24BA6D3E3E30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E345015-B822-4017-9D0E-24BA6D3E3E30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E345015-B822-4017-9D0E-24BA6D3E3E30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FD923D2-09A3-4EA0-BE0F-65044E0EC7E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FD923D2-09A3-4EA0-BE0F-65044E0EC7E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FD923D2-09A3-4EA0-BE0F-65044E0EC7E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FD923D2-09A3-4EA0-BE0F-65044E0EC7E7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

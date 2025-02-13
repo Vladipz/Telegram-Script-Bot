@@ -1,0 +1,6 @@
+@ScriptBot.API_HostAddress = http://localhost:5076
+
+GET {{ScriptBot.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
