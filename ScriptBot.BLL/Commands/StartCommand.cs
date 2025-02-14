@@ -1,5 +1,6 @@
 using ErrorOr;
 
+using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Mappings;
 using ScriptBot.BLL.Models.Telegram;
@@ -7,6 +8,7 @@ using ScriptBot.DAL.Entities;
 
 namespace ScriptBot.BLL.Commands
 {
+    [BotCommand("/start", "Register user", UserRole.Guest, UserRole.User, UserRole.Admin)]
     public class StartCommand : IBotCommand
     {
         private readonly IUserService _userService;

@@ -1,4 +1,3 @@
-
 using ErrorOr;
 
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ namespace ScriptBot.BLL.Services
 
         public async Task<ErrorOr<Created>> CreateUserAsync(CreateUserModel model)
         {
-            var existingUser = _dbContext.Users.FirstOrDefault(u => u.ChatId == model.ChatId);
+            var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.ChatId == model.ChatId);
 
             if (existingUser != null)
             {
@@ -41,6 +40,15 @@ namespace ScriptBot.BLL.Services
             await _dbContext.SaveChangesAsync();
 
             return Result.Created;
+        }
+
+        public async Task<UserRole> GetUserRoleAsync(long chatId)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.ChatId == chatId);
+
+            var role = user?.Role ?? UserRole.Guest;
+
+            return role;
         }
 
         public async Task<IEnumerable<User>> GetUsersAsync()

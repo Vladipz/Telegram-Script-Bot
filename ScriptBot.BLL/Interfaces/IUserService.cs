@@ -10,5 +10,7 @@ namespace ScriptBot.BLL.Interfaces
         Task<IEnumerable<User>> GetUsersAsync();
 
         Task<ErrorOr<Created>> CreateUserAsync(CreateUserModel model);
+
+        Task<UserRole> GetUserRoleAsync(long chatId);
     }
 }

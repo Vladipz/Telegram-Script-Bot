@@ -1,6 +1,6 @@
 using ErrorOr;
 
-using ScriptBot.BLL.Commands;
+using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
 
@@ -8,11 +8,13 @@ namespace ScriptBot.BLL.Services
 {
     public class CommandService : ICommandService
     {
-        private readonly IEnumerable<IBotCommand> _commands;
+        private readonly CommandRegistry _commandRegistry;
+        private readonly IUserService _userService;
 
-        public CommandService(IEnumerable<IBotCommand> commands)
+        public CommandService(CommandRegistry commandRegistry, IUserService userService)
         {
-            _commands = commands;
+            _commandRegistry = commandRegistry;
+            _userService = userService;
         }
 
         public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate)
@@ -21,7 +23,9 @@ namespace ScriptBot.BLL.Services
 
             var args = telegramUpdate.MessageText.Split(' ').Skip(1).ToArray();
 
-            var command = _commands.FirstOrDefault(c => c.Command == commandText);
+            var role = await _userService.GetUserRoleAsync(telegramUpdate.ChatId);
+
+            var command = _commandRegistry.GetCommand(commandText, role);
 
             if (command == null)
             {

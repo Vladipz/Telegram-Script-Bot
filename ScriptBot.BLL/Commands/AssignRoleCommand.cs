@@ -1,11 +1,13 @@
 using ErrorOr;
 
+using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
 using ScriptBot.DAL.Entities;
 
 namespace ScriptBot.BLL.Commands
 {
+    [BotCommand("/assignrole", "Assign role to user", UserRole.Admin)]
     public class AssignRoleCommand : IBotCommand
     {
         private readonly IRoleManagerService _roleManager;

@@ -2,12 +2,14 @@ using System.Text;
 
 using ErrorOr;
 
+using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Telegram;
 using ScriptBot.DAL.Entities;
 
 namespace ScriptBot.BLL.Commands
 {
+    [BotCommand("/users", "List all users", UserRole.Admin)]
     public class ListUsersCommand : IBotCommand
     {
         private readonly IUserService _userService;

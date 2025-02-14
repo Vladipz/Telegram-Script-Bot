@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using ScriptBot.BLL.Commands;
+using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Services;
 using ScriptBot.DAL.Data;
@@ -46,9 +47,7 @@ builder.Services.AddScoped<ICommandService, CommandService>();
 builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IBotCommand, StartCommand>();
-builder.Services.AddScoped<IBotCommand, ListUsersCommand>();
-builder.Services.AddScoped<IBotCommand, AssignRoleCommand>();
+builder.Services.AddScoped<CommandRegistry>(); // Автоматична реєстрація команд
 var app = builder.Build();
 
 app.UseCors("AllowAll");
