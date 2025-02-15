@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using ScriptBot.API.Helpers.Interceptors;
+using ScriptBot.API.Middlewares;
 using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Services;
@@ -50,11 +51,15 @@ builder.Services.AddScoped<ITelegramService, TelegramService>();
 builder.Services.AddScoped<ICommandService, CommandService>();
 builder.Services.AddScoped<ISftpService, SftpService>();
 builder.Services.AddScoped<IScriptGeneratorService, ScriptGeneratorService>();
+
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
 builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<CommandRegistry>(); // Автоматична реєстрація команд
 var app = builder.Build();
+
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 app.UseCors("AllowAll");
 
@@ -70,22 +75,4 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.MapControllers();
 
-app.Use(async (context, next) =>
-{
-    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation($"Incoming request: {context.Request.Method} {context.Request.Path}");
-
-    // Enable buffering for request body
-    context.Request.EnableBuffering();
-
-    // Read the request body
-    using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
-    var body = await reader.ReadToEndAsync();
-    logger.LogInformation($"Request body: {body}");
-
-    // Reset the request body position
-    context.Request.Body.Position = 0;
-
-    await next();
-});
 app.Run();
