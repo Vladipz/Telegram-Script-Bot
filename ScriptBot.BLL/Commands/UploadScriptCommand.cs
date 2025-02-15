@@ -13,12 +13,16 @@ namespace ScriptBot.BLL.Commands
     {
         private readonly IScriptGeneratorService _scriptGeneratorService;
         private readonly IUserService _userService;
+        private readonly IUploadsService _uploadsService;
 
         public UploadScriptCommand(
-            IScriptGeneratorService scriptGenerator, IUserService userService)
+            IScriptGeneratorService scriptGenerator,
+            IUserService userService,
+            IUploadsService uploadsService)
         {
             _scriptGeneratorService = scriptGenerator;
             _userService = userService;
+            _uploadsService = uploadsService;
         }
 
         public string Command => "/upload_script";
@@ -174,7 +178,7 @@ namespace ScriptBot.BLL.Commands
                 ServerFilePath = Path.Combine(host, scriptInfo.FileName),
             };
 
-            return await _userService.AddUploadAsync(upload);
+            return await _uploadsService.AddUploadAsync(upload);
         }
 
         private async Task<ErrorOr<ScriptGenerationResult>> GenerateAndUploadScript(string appName, string appBundle, string host, string username, string password)

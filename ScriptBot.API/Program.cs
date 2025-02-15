@@ -42,6 +42,8 @@ if (string.IsNullOrEmpty(botToken))
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
 
 builder.Services.AddSingleton<UptadeDatedEntityInterceptor>();
+
+builder.Services.AddScoped<IUploadsService, UploadsService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleManagerService, RoleManagerService>();
 builder.Services.AddScoped<ITelegramService, TelegramService>();

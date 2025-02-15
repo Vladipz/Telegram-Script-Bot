@@ -1,6 +1,6 @@
 ## TODO
 
-- [ ] Add last command
+- [x] Add last command
 - [ ] Add help command
 - [ ] Add Logging
 - [ ] Add global error logging
