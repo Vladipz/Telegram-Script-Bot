@@ -20,20 +20,20 @@ namespace ScriptBot.BLL.Commands
 
         public string Command => "/start";
 
-        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
+        public async Task<ErrorOr<IEnumerable<TelegramMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
         {
             var result = await _userService.CreateUserAsync(telegramUpdate.ToCreateModel(UserRole.User));
 
-            return result.Match<ErrorOr<IEnumerable<TargetMessageModel>>>(
+            return result.Match<ErrorOr<IEnumerable<TelegramMessageModel>>>(
                 created => GetSuccessMessages(telegramUpdate),
                 errors => errors);
         }
 
-        private static List<TargetMessageModel> GetSuccessMessages(TelegramUpdateModel telegramUpdate)
+        private static List<TelegramMessageModel> GetSuccessMessages(TelegramUpdateModel telegramUpdate)
         {
             return
             [
-                new TargetMessageModel(telegramUpdate.ChatId, "You have been registered!"),
+                new TelegramMessageModel(telegramUpdate.ChatId, "You have been registered!"),
             ];
         }
     }

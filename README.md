@@ -1,4 +1,5 @@
 ## TODO
 
-[ ] Think about repo ot using context in services
-[ ] Add logging
+- [ ] Think about using repository or context in services
+- [ ] Add logging
+- [ ] Add global error logging

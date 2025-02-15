@@ -18,6 +18,21 @@ namespace ScriptBot.BLL.Services
             _dbContext = dbContext;
         }
 
+        public async Task<ErrorOr<Success>> AddUploadAsync(Upload upload)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == upload.UserId);
+
+            if (user == null)
+            {
+                return Error.NotFound(description: "User not found");
+            }
+
+            await _dbContext.Uploads.AddAsync(upload);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success;
+        }
+
         public async Task<ErrorOr<Created>> CreateUserAsync(CreateUserModel model)
         {
             var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.ChatId == model.ChatId);
@@ -36,10 +51,20 @@ namespace ScriptBot.BLL.Services
             };
 
             await _dbContext.Users.AddAsync(user);
-
             await _dbContext.SaveChangesAsync();
 
             return Result.Created;
+        }
+
+        public async Task<ErrorOr<User>> GetUserAsync(long chatId)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.ChatId == chatId);
+            if (user == null)
+            {
+                return Error.NotFound(description: "User not found");
+            }
+
+            return user;
         }
 
         public async Task<UserRole> GetUserRoleAsync(long chatId)

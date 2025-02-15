@@ -53,7 +53,7 @@ namespace ScriptBot.API.Controllers
             }
 
             // Відправка всіх повідомлень отриманих від бізнес-логіки
-            if (result.Value is List<TargetMessageModel> messages)
+            if (result.Value is List<TelegramMessageModel> messages)
             {
                 foreach (var message in messages)
                 {

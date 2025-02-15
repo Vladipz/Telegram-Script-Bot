@@ -372,3 +372,8 @@ dotnet_diagnostic.SA1633.severity = none
 dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1309.severity = none
 dotnet_diagnostic.S1135.severity = suggestion
+
+//remove migration files from the project
+
+[**/Migrations/*.cs]
+generated_code = true

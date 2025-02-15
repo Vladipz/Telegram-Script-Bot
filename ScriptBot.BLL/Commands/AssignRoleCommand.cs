@@ -20,7 +20,7 @@ namespace ScriptBot.BLL.Commands
 
         public string Command => "/assignrole";
 
-        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
+        public async Task<ErrorOr<IEnumerable<TelegramMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
         {
             var validationResult = ValidateArguments(args);
             if (validationResult.IsError)
@@ -32,17 +32,17 @@ namespace ScriptBot.BLL.Commands
 
             var result = await _roleManager.UpdateUserRoleAsync(targetChatId, newRole);
 
-            return result.Match<ErrorOr<IEnumerable<TargetMessageModel>>>(
+            return result.Match<ErrorOr<IEnumerable<TelegramMessageModel>>>(
                 updated => GetSuccessMessages(telegramUpdate.ChatId, targetChatId, newRole),
                 errors => errors);
         }
 
-        private static List<TargetMessageModel> GetSuccessMessages(long chatId, long targetChatId, UserRole newRole)
+        private static List<TelegramMessageModel> GetSuccessMessages(long chatId, long targetChatId, UserRole newRole)
         {
             return
             [
-                new TargetMessageModel(chatId, $"Role {newRole} successfully assigned to user with ChatId: {targetChatId}"),
-                new TargetMessageModel(targetChatId, $"Your role has been changed to {newRole}"),
+                new TelegramMessageModel(chatId, $"Role {newRole} successfully assigned to user with ChatId: {targetChatId}"),
+                new TelegramMessageModel(targetChatId, $"Your role has been changed to {newRole}"),
             ];
         }
 

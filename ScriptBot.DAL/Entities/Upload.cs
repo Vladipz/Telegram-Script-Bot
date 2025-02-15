@@ -1,6 +1,8 @@
+using ScriptBot.DAL.Interfaces;
+
 namespace ScriptBot.DAL.Entities
 {
-    public class Upload
+    public class Upload : IDatedEntity
     {
         public int Id { get; set; }
 
@@ -14,16 +16,16 @@ namespace ScriptBot.DAL.Entities
 
         public string SecretKeyParam { get; set; } = string.Empty;
 
-        // TODO: may be not all fields are needed
-        // SFTP інформація
         public string ServerHost { get; set; } = string.Empty;
 
         public string ServerUsername { get; set; } = string.Empty;
 
-        public string ServerPasswordHash { get; set; } = string.Empty;
-
         public string ServerFilePath { get; set; } = string.Empty;
 
         public User User { get; set; } = default!;
+
+        public DateTimeOffset CreatedAt { get; set; }
+
+        public DateTimeOffset UpdatedAt { get; set; }
     }
 }

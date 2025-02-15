@@ -17,7 +17,7 @@ namespace ScriptBot.BLL.Services
             _userService = userService;
         }
 
-        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate)
+        public async Task<ErrorOr<IEnumerable<TelegramMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate)
         {
             var commandText = telegramUpdate.MessageText.Split(' ')[0];
 

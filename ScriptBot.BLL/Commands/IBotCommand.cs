@@ -8,6 +8,6 @@ namespace ScriptBot.BLL.Commands
     {
         string Command { get; }
 
-        Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args);
+        Task<ErrorOr<IEnumerable<TelegramMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args);
     }
 }

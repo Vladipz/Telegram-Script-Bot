@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-using ScriptBot.BLL.Commands;
+using ScriptBot.API.Helpers.Interceptors;
 using ScriptBot.BLL.Helpers;
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Services;
@@ -26,9 +26,10 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<BotDbContext>(options =>
+builder.Services.AddDbContext<BotDbContext>((sp, options) =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .AddInterceptors(sp.GetRequiredService<UptadeDatedEntityInterceptor>());
 });
 
 var botToken = builder.Configuration["TelegramBotToken"];
@@ -40,10 +41,13 @@ if (string.IsNullOrEmpty(botToken))
 
 builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
 
+builder.Services.AddSingleton<UptadeDatedEntityInterceptor>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleManagerService, RoleManagerService>();
 builder.Services.AddScoped<ITelegramService, TelegramService>();
 builder.Services.AddScoped<ICommandService, CommandService>();
+builder.Services.AddScoped<ISftpService, SftpService>();
+builder.Services.AddScoped<IScriptGeneratorService, ScriptGeneratorService>();
 builder.Services.ConfigureTelegramBotMvc();
 builder.Services.AddControllers();
 

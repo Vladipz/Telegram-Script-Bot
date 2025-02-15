@@ -21,7 +21,7 @@ namespace ScriptBot.BLL.Commands
 
         public string Command => "/users";
 
-        public async Task<ErrorOr<IEnumerable<TargetMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
+        public async Task<ErrorOr<IEnumerable<TelegramMessageModel>>> ExecuteAsync(TelegramUpdateModel telegramUpdate, string[] args)
         {
             var users = await _userService.GetUsersAsync();
 
@@ -33,7 +33,7 @@ namespace ScriptBot.BLL.Commands
             return GetSuccessMessages(telegramUpdate, users);
         }
 
-        private static List<TargetMessageModel> GetSuccessMessages(TelegramUpdateModel telegramUpdate, IEnumerable<User> users)
+        private static List<TelegramMessageModel> GetSuccessMessages(TelegramUpdateModel telegramUpdate, IEnumerable<User> users)
         {
             var messageBuilder = new StringBuilder("Users list:\n\n");
 
@@ -46,7 +46,7 @@ namespace ScriptBot.BLL.Commands
             // Повертаємо список із одного TargetMessageModel
             return
             [
-                new TargetMessageModel(telegramUpdate.ChatId, messageBuilder.ToString())
+                new TelegramMessageModel(telegramUpdate.ChatId, messageBuilder.ToString())
             ];
         }
     }

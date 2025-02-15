@@ -34,6 +34,21 @@ services:
       - script_bot_network
     depends_on:
       - postgres
+  sftp:
+    container_name: script_bot_sftp
+    image: atmoz/sftp
+    ports:
+      - "2222:22"
+    volumes:
+      - ./sftp/upload:/home/foo/upload
+    command: foo:pass:::upload
+    networks:
+      - script_bot_network
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2222" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
   script_bot_network:

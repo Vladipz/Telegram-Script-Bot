@@ -6,6 +6,6 @@ namespace ScriptBot.BLL.Interfaces
 {
     public interface ICommandService
     {
-        Task<ErrorOr<IEnumerable<TargetMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate);
+        Task<ErrorOr<IEnumerable<TelegramMessageModel>>> HandleCommandAsync(TelegramUpdateModel telegramUpdate);
     }
 }
