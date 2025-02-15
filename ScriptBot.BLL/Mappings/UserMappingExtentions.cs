@@ -15,5 +15,15 @@ namespace ScriptBot.BLL.Mappings
                 Role = role,
             };
         }
+
+        public static User ToEntity(this CreateUserModel model)
+        {
+            return new User
+            {
+                ChatId = model.ChatId,
+                Username = model.Username,
+                Role = model.Role,
+            };
+        }
     }
 }

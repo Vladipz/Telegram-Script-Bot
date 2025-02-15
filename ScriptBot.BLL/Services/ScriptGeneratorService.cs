@@ -1,5 +1,7 @@
 using ErrorOr;
 
+using Microsoft.Extensions.Logging;
+
 using ScriptBot.BLL.Interfaces;
 using ScriptBot.BLL.Models.Script;
 using ScriptBot.DAL.Entities;
@@ -19,37 +21,41 @@ namespace ScriptBot.BLL.Services
         ?>";
 
         private readonly ISftpService _sftpService;
+        private readonly ILogger<ScriptGeneratorService> _logger;
 
-        public ScriptGeneratorService(ISftpService sftpService)
+        public ScriptGeneratorService(ISftpService sftpService, ILogger<ScriptGeneratorService> logger)
         {
             _sftpService = sftpService;
+            _logger = logger;
         }
 
         public async Task<ErrorOr<ScriptGenerationResult>> GenerateScriptAsync(ScriptGenerationRequest request)
         {
             try
             {
-                var validationResult = ValidateRequest(request);
+                _logger.LogInformation("Starting script generation for app: {AppName}", request.AppName);
+
+                ErrorOr<Success> validationResult = ValidateRequest(request);
                 if (validationResult.IsError)
                 {
+                    _logger.LogWarning("Validation failed for app: {AppName}. Errors: {Errors}", request.AppName, string.Join(", ", validationResult.Errors));
                     return validationResult.Errors;
                 }
 
-                var sanitizedAppName = EscapePhpString(request.AppName);
-                var sanitizedAppBundle = EscapePhpString(request.AppBundle);
-                var secret = GenerateSecret();
-                var secretKeyParam = GenerateSecretKeyParam();
+                string sanitizedAppName = EscapePhpString(request.AppName);
+                string sanitizedAppBundle = EscapePhpString(request.AppBundle);
+                string secret = GenerateSecret();
+                string secretKeyParam = GenerateSecretKeyParam();
 
-                // Формування контенту скрипта
                 string scriptContent = ScriptTemplate
                     .Replace("[APP_NAME]", sanitizedAppName)
                     .Replace("[APP_BUNDLE]", sanitizedAppBundle)
                     .Replace("[SECRET]", secret)
                     .Replace("[SECRET_KEY_PARAM]", secretKeyParam);
 
-                var fileName = GenerateFileName(request.AppName);
+                string fileName = GenerateFileName(request.AppName);
 
-                var uploadInfo = new Upload
+                Upload uploadInfo = new()
                 {
                     AppName = request.AppName,
                     AppBundle = request.AppBundle,
@@ -57,6 +63,8 @@ namespace ScriptBot.BLL.Services
                     SecretKeyParam = secretKeyParam,
                     ServerFilePath = fileName,
                 };
+
+                _logger.LogInformation("Script generated successfully for app: {AppName}, fileName: {FileName}", request.AppName, fileName);
 
                 return new ScriptGenerationResult
                 {
@@ -69,6 +77,7 @@ namespace ScriptBot.BLL.Services
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Script generation failed for app: {AppName}", request.AppName);
                 return Error.Failure("ScriptGeneration.Failed", ex.Message);
             }
         }
@@ -77,24 +86,29 @@ namespace ScriptBot.BLL.Services
             ScriptGenerationRequest request,
             SftpConnectionInfo connectionInfo)
         {
-            // Генеруємо скрипт
-            var generationResult = await GenerateScriptAsync(request);
+            _logger.LogInformation("Starting script generation and upload for app: {AppName}", request.AppName);
+
+            ErrorOr<ScriptGenerationResult> generationResult = await GenerateScriptAsync(request);
             if (generationResult.IsError)
             {
+                _logger.LogWarning("Script generation failed for app: {AppName}", request.AppName);
                 return generationResult.Errors;
             }
 
-            // Завантажуємо на сервер
-            var uploadResult = await _sftpService.UploadFileAsync(
+            _logger.LogInformation("Uploading script for app: {AppName}", request.AppName);
+
+            ErrorOr<Success> uploadResult = await _sftpService.UploadFileAsync(
                 generationResult.Value.ScriptContent,
                 generationResult.Value.FileName,
                 connectionInfo);
 
             if (uploadResult.IsError)
             {
+                _logger.LogError("Script upload failed for app: {AppName}, fileName: {FileName}", request.AppName, generationResult.Value.FileName);
                 return uploadResult.Errors;
             }
 
+            _logger.LogInformation("Script successfully generated and uploaded for app: {AppName}", request.AppName);
             return generationResult;
         }
 

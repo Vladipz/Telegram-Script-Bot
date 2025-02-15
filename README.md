@@ -3,7 +3,7 @@
 - [x] Add last command
 - [ ] Add help command
 - [ ] Add Logging
-- [ ] Add global error logging
+- [x] Add global error logging
 - [ ] Add docker support
 - [ ] Add readme documentation about the project
 - [ ] Add env file with configuration
