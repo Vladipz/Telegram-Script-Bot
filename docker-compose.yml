@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+  telegram-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: script_bot_api
+    ports:
+      - "5076:5001"
+    env_file:
+      - .env
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+    networks:
+      - script_bot_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     container_name: script_bot_db
     image: postgres:latest
@@ -34,18 +51,19 @@ services:
       - script_bot_network
     depends_on:
       - postgres
+
   sftp:
     container_name: script_bot_sftp
     image: atmoz/sftp
     ports:
-      - "2222:22"
+      - "22:22"
     volumes:
       - ./sftp/upload:/home/foo/upload
     command: foo:pass:::upload
     networks:
       - script_bot_network
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "2222" ]
+      test: [ "CMD", "nc", "-z", "localhost", "22" ]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -88,7 +88,7 @@ namespace ScriptBot.BLL.Commands
             return new SftpConnectionInfo
             {
                 Host = host,
-                Port = 2222,
+                Port = 22,
                 Username = username,
                 Password = password,
                 RemotePath = "/upload",
