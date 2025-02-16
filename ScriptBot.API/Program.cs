@@ -1,11 +1,67 @@
+using Microsoft.EntityFrameworkCore;
+
+using ScriptBot.API.Helpers.Interceptors;
+using ScriptBot.API.Middlewares;
+using ScriptBot.BLL.Helpers;
+using ScriptBot.BLL.Interfaces;
+using ScriptBot.BLL.Services;
+using ScriptBot.DAL.Data;
+
+using Telegram.Bot;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<BotDbContext>((sp, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .AddInterceptors(sp.GetRequiredService<UptadeDatedEntityInterceptor>());
+});
+
+var botToken = builder.Configuration["TelegramBotToken"];
+
+if (string.IsNullOrEmpty(botToken))
+{
+    throw new InvalidOperationException("TelegramBotToken is not set in configuration.");
+}
+
+builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+
+builder.Services.AddSingleton<UptadeDatedEntityInterceptor>();
+
+builder.Services.AddScoped<IUploadsService, UploadsService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleManagerService, RoleManagerService>();
+builder.Services.AddScoped<ITelegramService, TelegramService>();
+builder.Services.AddScoped<ICommandService, CommandService>();
+builder.Services.AddScoped<ISftpService, SftpService>();
+builder.Services.AddScoped<IScriptGeneratorService, ScriptGeneratorService>();
+
+builder.Services.AddTransient<GlobalErrorHandlingMiddleware>();
+builder.Services.ConfigureTelegramBotMvc();
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<CommandRegistry>(); // Автоматична реєстрація команд
 var app = builder.Build();
+
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -16,29 +72,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.UseRouting();
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
