@@ -2,6 +2,21 @@
 
 A Telegram bot built with .NET 8 that helps manage and upload scripts to servers. The bot supports role-based access control and provides various commands for script management and user administration.
 
+## TODO
+
+- [x] Add last command
+- [ ] Add help command (there is a bug with recursive dependency, need to refactor to implement this command)
+- [x] Add Logging
+- [x] Add global error logging
+- [x] Add docker support
+- [x] Add readme documentation about the project
+- [x] Add env file with configuration
+- [x] Add documentation to methods
+- [ ] Add tests
+- [ ] Add CI/CD
+- [ ] Add all needed models to BLL layer
+- [ ] Add repository pattern (now I use context as implementation of repository)
+
 ## Features
 
 - Role-based access control (Guest, User, Admin)
@@ -201,16 +216,3 @@ docker-compose up -d
 npm install -g localtunnel
 lt --port 5076 --subdomain mytelegrambot
 ```
-
-## TODO
-
-- [x] Add last command
-- [ ] Add help command
-- [x] Add Logging
-- [x] Add global error logging
-- [ ] Add docker support
-- [ ] Add readme documentation about the project
-- [ ] Add env file with configuration
-- [x] Add documentation to methods
-- [ ] Add tests
-- [ ] Think about using repository or context in services
